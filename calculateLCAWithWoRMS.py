@@ -59,9 +59,6 @@ for line in open(args.file):
     if pident < pident_cutoff:
         continue
 
-    if 'ANFC H 9145-21]' in line:
-        # for now, get rid of that mislabeled Solegnathus
-        continue
     taxid = ll[2]
     taxids.add(taxid)
 
@@ -115,9 +112,6 @@ for line in open(args.file):
     if pident < pident_cutoff:
         continue
 
-    if 'ANFC H 9145-21]' in line:
-        # for now, get rid of that mislabeled Solegnathus
-        continue
     taxid = ll[2]
     species = taxid_to_name_dict[int(taxid)]
     try:
