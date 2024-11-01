@@ -94,4 +94,4 @@ Your BLAST database was not made using taxonomy IDs. Make a table of sequence ID
 
 - I have more questions!
 
-Please contact me at pbayer@minderoo.org
+Please contact me at pbayer AT minderoo.org
