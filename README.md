@@ -4,6 +4,8 @@ Most LCA pipelines out there rely on NCBI's Taxonomy database. However, that dat
 
 Be careful, though: WoRMS includes only *marine* species and will return nothing for non-marine species, so if you have a mix of marine and non-marine species in your results better use a different database. We work with marine eDNA so filtering out non-marine hits is very useful for us, lots of similar looking freshwater fish out there!
 
+Since WoRMS often changes you better write down the date you ran this tool with your data.
+
 Here's what LCA levels look like between NCBI Taxonomy ('normal') and WoRMS for one of our internal libraries, thanks to Dr Georgia Nester for the comparison:
 
 ![Rplot](https://github.com/user-attachments/assets/781cb094-a06b-42a5-8c61-b36efb150455)
@@ -95,3 +97,8 @@ Your BLAST database was not made using taxonomy IDs. Make a table of sequence ID
 - I have more questions!
 
 Please contact me at pbayer AT minderoo.org
+
+
+## CHANGELOG
+
+- v0.01: initial release a.k.a. 'works on my system'
