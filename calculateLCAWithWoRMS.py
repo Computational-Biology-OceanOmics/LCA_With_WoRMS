@@ -38,8 +38,8 @@ def get_lca(entries):
 
 
 parser = ArgumentParser(description = 'Parses a BLAST-tabular output file and produces LCAs by asking the WoRMS API for each hit\'s lineage. BLAST formatting assumed is: -outfmt "6 qseqid sseqid staxids sscinames scomnames sskingdoms pident length qlen slen mismatch gapopen gaps qstart qend sstart send stitle evalue bitscore qcovs qcovhsp"')
-parser.add_argument('-f', '--file', help = 'input file of BLAST results', required = True, type = ascii)
-parser.add_argument('-o', '--output', help = 'Output file of LCAs. Tab delimited.', required = True, type = ascii)
+parser.add_argument('-f', '--file', help = 'input file of BLAST results', required = True)
+parser.add_argument('-o', '--output', help = 'Output file of LCAs. Tab delimited.', required = True)
 parser.add_argument('--cutoff', help = 'OPTIONAL: Percentage cutoff between best BLAST hit and followup to be considered in LCA. Only species within this percentage identity cutoff will be included in LCA calculation.\nDefault: %(default)s in line with eDNAFlow\'s LCA script.', default = CUTOFF, type = float)
 parser.add_argument('--pident', help = 'OPTIONAL: Percentage cutoff for BLAST hits. Hits below this cutoff will be ignored for LCA calculation.\nDefault: Initially consider all BLAST hits, but then filter in line with --cutoff.', default = 0, type = float)
 parser.add_argument('--missing_out', help = 'OPTIONAL: Filename to write missing species (not in WoRMS) to.\nDefault: missing.csv.', default = 'missing.csv', type = ascii)
@@ -71,15 +71,17 @@ taxid_to_name_dict = dict(zip(taxid_to_name.TaxID, taxid_to_name.Name))
 all_species = list(set(taxid_to_name_dict.values()))
 
 results = pyworms.aphiaRecordsByMatchNames(all_species)
-assert len(results) == len(all_species)
+assert len(results) == len(all_species), 'ERROR: Somehow different number of WoRMS records ({len(results)}) to species ({len(all_species)})'
 
 look_up = {}
-for a, b in zip(all_species, results):
+
+for species, b in zip(all_species, results):
      
     if not b:
         # not in worms!
         #print(f'did not find {a}')
         continue
+
     if ' ' not in species:
         genus = species
     else:
@@ -87,8 +89,6 @@ for a, b in zip(all_species, results):
     
     #  [{'AphiaID': 218512, 'url': 'https://www.marinespecies.org/aphia.php?p=taxdetails&id=218512', 'scientificname': 'Pristipomoides auricilla', 'authority': '(Jordan, Evermann & Tanaka, 1927)', 'status': 'accepted', 'unacceptreason': None, 'taxonRankID': 220, 'rank': 'Species', 'valid_AphiaID': 218512, 'valid_name': 'Pristipomoides auricilla', 'valid_authority': '(Jordan, Evermann & Tanaka, 1927)', 'parentNameUsageID': 159804, 'kingdom': 'Animalia', 'phylum': 'Chordata', 'class': 'Teleostei', 'order': 'Eupercaria incertae sedis', 'family': 'Lutjanidae', 'genus': 'Pristipomoides', 'citation': 'Froese, R. and D. Pauly. Editors. (2024). FishBase. Pristipomoides auricilla (Jordan, Evermann & Tanaka, 1927). Accessed through: World Register of Marine Species at: https://www.marinespecies.org/aphia.php?p=taxdetails&id=218512 on 2024-10-30', 'lsid': 'urn:lsid:marinespecies.org:taxname:218512', 'isMarine': 1, 'isBrackish': 0, 'isFreshwater': 0, 'isTerrestrial': 0, 'isExtinct': None, 'match_type': 'exact', 'modified': '2008-01-15T17:27:08.177Z'}]
     this_hit = b[0]
-    print(a)
-    print(this_hit)
     thisclass = this_hit['class']
     order = this_hit['order']
     family = this_hit['family']
@@ -108,7 +108,7 @@ for a, b in zip(all_species, results):
                             ]
 
 
-for line in open('test.txt'):
+for line in open(args.file):
     ll = line.rstrip().split('\t')
 
     pident = float(ll[6])
@@ -119,7 +119,7 @@ for line in open('test.txt'):
         # for now, get rid of that mislabeled Solegnathus
         continue
     taxid = ll[2]
-    species = taxid_to_name_dict[taxid]
+    species = taxid_to_name_dict[int(taxid)]
     try:
         lineage = look_up[species]
 
@@ -144,35 +144,36 @@ with open(args.missing_out, 'w') as out:
         name = '\t'.join(c)
         out.write(f'{name}\t{missing_c[c]}\n')
 
-print('ASV_name\tClass\tOrder\tFamily\tGenus\tSpecies\tPercentageID\tSpecies_In_LCA')
-for asv_name in asv_hits:
-    orf_hits = asv_hits[asv_name]
+with open(args.output, 'w') as out:
+    out.write('ASV_name\tClass\tOrder\tFamily\tGenus\tSpecies\tPercentageID\tSpecies_In_LCA\n')
+    for asv_name in asv_hits:
+        orf_hits = asv_hits[asv_name]
 
-    # get all the species
-    species = set()
-    genera = set()
-    families = set()
-    orders = set()
-    classes = set()
-    for a in orf_hits:
-        # this is one HIT it has all the levels
-        pident, lineage = a
-        thisclass, thisorder, thisfamily, thisgenus, thisspecies = [x[1] for x in lineage]
-        classes.add( (pident, thisclass) )
-        orders.add( (pident, thisorder) )
-        families.add( (pident, thisfamily) )
-        genera.add( (pident, thisgenus) )
-        species.add( (pident, thisspecies) )
+        # get all the species
+        species = set()
+        genera = set()
+        families = set()
+        orders = set()
+        classes = set()
+        for a in orf_hits:
+            # this is one HIT it has all the levels
+            pident, lineage = a
+            thisclass, thisorder, thisfamily, thisgenus, thisspecies = [x[1] for x in lineage]
+            classes.add( (pident, thisclass) )
+            orders.add( (pident, thisorder) )
+            families.add( (pident, thisfamily) )
+            genera.add( (pident, thisgenus) )
+            species.add( (pident, thisspecies) )
 
 
-    #[('C', 'Actinopterygii'), ('O', 'Ophidiiformes'), ('F', 'Ophidiidae'), ('G', 'Ventichthys'), ('S', 'Ventichthys biospeedoi')]
-    # oK now we have all the species and genera
+        #[('C', 'Actinopterygii'), ('O', 'Ophidiiformes'), ('F', 'Ophidiidae'), ('G', 'Ventichthys'), ('S', 'Ventichthys biospeedoi')]
+        # oK now we have all the species and genera
 
-    # we need to find the specs that has >1% difference in pident
-  
-    lca_spec_perc, lca_spec, included_spec = get_lca(species)
-    lca_genus_perc, lca_genus, included_genera = get_lca(genera)
-    lca_fam_perc, lca_fam, _ = get_lca(families)
-    lca_order_perc, lca_order, _ = get_lca(orders)
-    lca_class_perc, lca_class, _ = get_lca(classes)
-    print(f'{asv_name}\t{lca_class}\t{lca_order}\t{lca_fam}\t{lca_genus}\t{lca_spec}\t{lca_spec_perc:.2f}\t{", ".join(included_spec)}')
+        # we need to find the specs that has >1% difference in pident
+      
+        lca_spec_perc, lca_spec, included_spec = get_lca(species)
+        lca_genus_perc, lca_genus, included_genera = get_lca(genera)
+        lca_fam_perc, lca_fam, _ = get_lca(families)
+        lca_order_perc, lca_order, _ = get_lca(orders)
+        lca_class_perc, lca_class, _ = get_lca(classes)
+        out.write(f'{asv_name}\t{lca_class}\t{lca_order}\t{lca_fam}\t{lca_genus}\t{lca_spec}\t{lca_spec_perc:.2f}\t{", ".join(included_spec)}\n')
