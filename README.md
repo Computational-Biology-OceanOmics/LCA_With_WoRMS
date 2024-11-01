@@ -8,11 +8,13 @@ Be careful, though: WoRMS includes only *marine* species and will return nothing
 
 The LCA calculation works the same way as [eDNAFlow](https://github.com/mahsa-mousavi/eDNAFlow)'s LCA calculation. Given a group of potential species for an ASV, take the species with the highest identity, subtract 1 from the identity, and then include all species above that cutoff in the LCA. The LCA itself is just a grouping: if there are several species within the cutoff, then the species is set to 'dropped' and we go up one taxonomic level. There's no LCA voting or similar, though that's not hard to add.
 
-## Usage
+## Input
 
 The input is blast-output, tabular, using this output format:
 
      -outfmt "6 qseqid sseqid staxids sscinames scomnames sskingdoms pident length qlen slen mismatch gapopen gaps qstart qend sstart send stitle evalue bitscore qcovs qcovhsp"
+
+## Usage
 
 ```
 usage: calculateLCAWithWoRMS.py [-h] -f FILE -o OUTPUT [--cutoff CUTOFF] [--pident PIDENT] [--missing_out MISSING_OUT]
