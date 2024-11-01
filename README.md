@@ -12,13 +12,15 @@ Here's what LCA levels look like between NCBI Taxonomy ('normal') and WoRMS for 
 
 ## LCA calculation
 
-The LCA calculation works the same way as [eDNAFlow](https://github.com/mahsa-mousavi/eDNAFlow)'s LCA calculation. Given a group of potential species for an ASV, take the species with the highest identity, subtract 1 from the identity, and then include all species above that cutoff in the LCA. The LCA itself is just a grouping: if there are several species within the cutoff, then the species is set to 'dropped' and we go up one taxonomic level. There's no LCA voting or similar, though that's not hard to add.
+The LCA calculation works the same way as [eDNAFlow](https://github.com/mahsa-mousavi/eDNAFlow)'s LCA calculation. Given a group of potential species for an ASV, take the species with the highest percentage base-pair identity, subtract 1 from the identity, and then include all species above that cutoff in the LCA. The LCA itself is just a grouping: if there are several species within the cutoff, then the species is set to 'dropped' and we go up one taxonomic level, repeat for the genus, repeat for the family, repeat for the class, repeat for the order. There's no LCA voting or similar, though that's not hard to add.
 
 ## Input
 
 The input is blast-output, tabular, using this output format:
 
      -outfmt "6 qseqid sseqid staxids sscinames scomnames sskingdoms pident length qlen slen mismatch gapopen gaps qstart qend sstart send stitle evalue bitscore qcovs qcovhsp"
+
+I think it's OK as long as the third column is the NCBI Taxonomy ID and the seventh column is the percent identity.
 
 ## Usage
 
@@ -57,7 +59,7 @@ ASV_name        Class   Order   Family  Genus   Species PercentageID    Species_
 ASV_17067       Teleostei       Ophidiiformes   Ophidiidae      dropped dropped 89.60   Ventichthys biospeedoi, Bassozetus zenkevitchi
 ```
 
-A tab-delimited table, one row per unique query in the BLAST results, showing which WoRMS taxonomic levels were included, and which were dropped. It also shows the average BLAST identity of the species-hits included in the LCA, and the species that were included in the LCA.
+A tab-delimited table, one row per unique query in the BLAST results, showing which WoRMS taxonomic levels were included, and which were dropped. It also shows the average BLAST identity of the species-hits included in the LCA, and the species that were included in the LCA. *IMPORTANT*: By default BLAST does not report queries with no hits. That means the output table of this script will not contain all queries.
 
 ## Installation
 
@@ -70,7 +72,7 @@ This depends on pytaxonkit (only on bioconda) and pyworms. Follow the [pytaxonki
 
 - Why does this depend on pytaxonkit? I thought it ignores NCBI Taxonomy?
 
-Yes, but I have not found a nice way to pull out the species name from a row of BLAST hits. I have played with [taxonerd](https://github.com/nleguillarme/taxonerd) but it feels like overkill for this problem. Relying on the NCBI Taxonomy ID, then pulling out the WoRMS lineage for that taxonomy ID is the best middle-ground in my opinion. I *could* base this on the sscinames column produced by BLAST, but when BLAST does not have the NCBI taxonomy database present when running that column will be all NA.
+Yes, but I have not found a nice way to pull out the species name from a row of BLAST hits. I have played with [taxonerd](https://github.com/nleguillarme/taxonerd) but it feels like overkill for this problem. Relying on the NCBI Taxonomy ID for the species name, then pulling out the WoRMS lineage for the NCBI species name is the best middle-ground in my opinion. I *could* base this on the sscinames column produced by BLAST, but when BLAST does not have the NCBI taxonomy database present when running that column will be all NA.
 
 - How long does this run for?
 

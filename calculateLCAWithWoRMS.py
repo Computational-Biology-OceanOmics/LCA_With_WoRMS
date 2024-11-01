@@ -48,6 +48,8 @@ args = parser.parse_args()
 cutoff = args.cutoff
 pident_cutoff = args.pident
 
+assert pident_cutoff >= 0 and pident_cutoff <= 100, 'ERROR: Parameter --pident_cutoff must be between 0 and 100'
+
 asv_hits = OrderedDict()
 missing_c = Counter()
 
@@ -59,6 +61,9 @@ for line in open(args.file):
     if pident < pident_cutoff:
         continue
 
+    if 'ANFC H 9145-21]' in line:
+        # for now, get rid of that mislabeled Solegnathus
+        continue
     taxid = ll[2]
     taxids.add(taxid)
 
@@ -79,10 +84,6 @@ for species, b in zip(all_species, results):
         #print(f'did not find {a}')
         continue
 
-    if ' ' not in species:
-        genus = species
-    else:
-        genus = species.split(' ')[0]
     
     #  [{'AphiaID': 218512, 'url': 'https://www.marinespecies.org/aphia.php?p=taxdetails&id=218512', 'scientificname': 'Pristipomoides auricilla', 'authority': '(Jordan, Evermann & Tanaka, 1927)', 'status': 'accepted', 'unacceptreason': None, 'taxonRankID': 220, 'rank': 'Species', 'valid_AphiaID': 218512, 'valid_name': 'Pristipomoides auricilla', 'valid_authority': '(Jordan, Evermann & Tanaka, 1927)', 'parentNameUsageID': 159804, 'kingdom': 'Animalia', 'phylum': 'Chordata', 'class': 'Teleostei', 'order': 'Eupercaria incertae sedis', 'family': 'Lutjanidae', 'genus': 'Pristipomoides', 'citation': 'Froese, R. and D. Pauly. Editors. (2024). FishBase. Pristipomoides auricilla (Jordan, Evermann & Tanaka, 1927). Accessed through: World Register of Marine Species at: https://www.marinespecies.org/aphia.php?p=taxdetails&id=218512 on 2024-10-30', 'lsid': 'urn:lsid:marinespecies.org:taxname:218512', 'isMarine': 1, 'isBrackish': 0, 'isFreshwater': 0, 'isTerrestrial': 0, 'isExtinct': None, 'match_type': 'exact', 'modified': '2008-01-15T17:27:08.177Z'}]
     this_hit = b[0]
@@ -91,13 +92,31 @@ for species, b in zip(all_species, results):
     family = this_hit['family']
     genus = this_hit['genus']
     realspecies = this_hit['valid_name']
-    look_up[species] = [ ("C", thisclass),
-                        ("O", order),
-                        ("F", family),
-                        ("G", genus),
-                        ("S", realspecies) ]
-    if ' ' not in genus:
+
+    print(species, this_hit)
+    # some BLAST hits are not on the species level. so what  WoRMS retusn is not on the species-level, either
+    if species:
+        look_up[species] = [ ("C", thisclass),
+                            ("O", order),
+                            ("F", family),
+                            ("G", genus),
+                            ("S", realspecies) ]
+    if genus and not species:
         look_up[genus] = [ ("C", thisclass),
+                            ("O", order),
+                            ("F", family),
+                            ("G", genus),
+                            ("S", '')
+                            ]
+    if family and not genus:
+        look_up[family] = [ ("C", thisclass),
+                            ("O", order),
+                            ("F", family),
+                            ("G", genus),
+                            ("S", '')
+                            ]
+    if order and not family:
+        look_up[family] = [ ("C", thisclass),
                             ("O", order),
                             ("F", family),
                             ("G", genus),
@@ -112,6 +131,9 @@ for line in open(args.file):
     if pident < pident_cutoff:
         continue
 
+    if 'ANFC H 9145-21]' in line:
+        # for now, get rid of that mislabeled Solegnathus
+        continue
     taxid = ll[2]
     species = taxid_to_name_dict[int(taxid)]
     try:
