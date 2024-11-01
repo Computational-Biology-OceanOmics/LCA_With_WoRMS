@@ -96,6 +96,10 @@ Your BLAST database was not made using taxonomy IDs. Make a table of sequence ID
 
     makeblastdb -dbtype nucl -in your_database.fasta -parse_seqids -taxid_map your_database.taxids.txt
 
+- I may have unacccepted taxonomic names in my results.
+
+WoRMS is nice in that it knows about many, but not all unaccepted names. If an unaccepted name made it into WoRMS the API returns the accepted version of this name along with the taxonomic lineage of the new, accepted name. We then use that name for the LCA. Neat, isn't it
+
 - I have more questions!
 
 Please contact me at pbayer AT minderoo.org
