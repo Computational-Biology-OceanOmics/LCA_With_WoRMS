@@ -75,6 +75,12 @@ I have thought about adding AFD (Australian Faunal Directory) as another source.
 
 The script only works with class, order, family, genus, species. That way I can make the LCA calculation fairly lazy: instead of having to build a graph of all taxonomic levels and doing weird graph-based magic, I can just calculate the sets of unique species, unique genera, unique families, unique orders, unique classes, and check set size after filtering. If the set size is > 1, set this taxonomic level's taxonomic label to 'dropped'. Easier than breaking my head trying to come up with recursive tree-walking algorithms for the sake of methodological complexity you can publish in a paper, I'd rather have results.
 
+- My BLAST results have NAs for taxonomy IDs so everything breaks.
+
+Your BLAST database was not made using taxonomy IDs. Make a table of sequence IDs and their associated taxonomy IDs, then run this:
+
+    makeblastdb -dbtype nucl -in your_database.fasta -parse_seqids -taxid_map your_database.taxids.txt
+
 - I have more questions!
 
 Please contact me at pbayer@minderoo.org
