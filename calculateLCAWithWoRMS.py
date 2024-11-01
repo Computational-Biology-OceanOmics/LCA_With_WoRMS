@@ -37,10 +37,11 @@ def get_lca(entries):
     return lca_perc, lca, new_spec
 
 
-parser = ArgumentParser()
-parser.add_argument('-f', '--file', help = 'input file of BLAST results', required = True)
-parser.add_argument('--cutoff', help = 'OPTIONAL: Percentage cutoff between best BLAST hit and followup to be considered in LCA', default = CUTOFF)
-parser.add_argument('--pident', help = 'OPTIONAL: Percentage cutoff for BLAST hits. Hits below this cutoff will be ignored for LCA calculation.', default = 0)
+parser = ArgumentParser(description = 'Parses a BLAST-tabular output file and produces LCAs by asking the WoRMS API for each hit\'s lineage. BLAST formatting assumed is: -outfmt "6 qseqid sseqid staxids sscinames scomnames sskingdoms pident length qlen slen mismatch gapopen gaps qstart qend sstart send stitle evalue bitscore qcovs qcovhsp"')
+parser.add_argument('-f', '--file', help = 'input file of BLAST results', required = True, type = ascii)
+parser.add_argument('-o', '--output', help = 'Output file of LCAs. Tab delimited.', required = True, type = ascii)
+parser.add_argument('--cutoff', help = 'OPTIONAL: Percentage cutoff between best BLAST hit and followup to be considered in LCA. Only species within this percentage identity cutoff will be included in LCA calculation.\nDefault: %(default)s in line with eDNAFlow\'s LCA script.', default = CUTOFF, type = float)
+parser.add_argument('--pident', help = 'OPTIONAL: Percentage cutoff for BLAST hits. Hits below this cutoff will be ignored for LCA calculation.\nDefault: Initially consider all BLAST hits, but then filter in line with --cutoff.', default = 0, type = float)
 args = parser.parse_args()
 
 cutoff = args.cutoff
