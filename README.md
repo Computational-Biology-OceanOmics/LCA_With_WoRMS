@@ -6,7 +6,7 @@ Be careful, though: WoRMS includes only *marine* species and will return nothing
 
 ## LCA calculation
 
-The LCA calculation works the same way as [eDNAFlow](https://github.com/mahsa-mousavi/eDNAFlow)'s LCA calculation. Given a group of potential species for an ASV, take the species with the highest identity, subtract 1 from the identity, and then include all species above that cutoff in the LCA. The LCA itself is just a grouping: if there are several species within the cutoff, then the species is set to 'dropped' and we go up one taxonomic level. There's no fancy LCA voting or similar, though that's not hard to add.
+The LCA calculation works the same way as [eDNAFlow](https://github.com/mahsa-mousavi/eDNAFlow)'s LCA calculation. Given a group of potential species for an ASV, take the species with the highest identity, subtract 1 from the identity, and then include all species above that cutoff in the LCA. The LCA itself is just a grouping: if there are several species within the cutoff, then the species is set to 'dropped' and we go up one taxonomic level. There's no LCA voting or similar, though that's not hard to add.
 
 ## Usage
 
@@ -15,7 +15,7 @@ The input is blast-output, tabular, using this output format:
      -outfmt "6 qseqid sseqid staxids sscinames scomnames sskingdoms pident length qlen slen mismatch gapopen gaps qstart qend sstart send stitle evalue bitscore qcovs qcovhsp"
 
 ```
-usage: calculateLCAWithWoRMS.py [-h] -f FILE -o OUTPUT [--cutoff CUTOFF] [--pident PIDENT]
+usage: calculateLCAWithWoRMS.py [-h] -f FILE -o OUTPUT [--cutoff CUTOFF] [--pident PIDENT] [--missing_out MISSING_OUT]
 
 Parses a BLAST-tabular output file and produces LCAs by asking the WoRMS API for each hit's lineage. BLAST formatting assumed is: -outfmt "6
 qseqid sseqid staxids sscinames scomnames sskingdoms pident length qlen slen mismatch gapopen gaps qstart qend sstart send stitle evalue
@@ -30,11 +30,15 @@ options:
                         percentage identity cutoff will be included in LCA calculation. Default: 1 in line with eDNAFlow's LCA script.
   --pident PIDENT       OPTIONAL: Percentage cutoff for BLAST hits. Hits below this cutoff will be ignored for LCA calculation. Default:
                         Initially consider all BLAST hits, but then filter in line with --cutoff.
+  --missing_out MISSING_OUT
+                        OPTIONAL: Filename to write missing species (not in WoRMS) to. Default: missing.csv.
 ```
 
 --cutoff changes how lenient the LCA calculation it is - the larger the cutoff, the more species are included in an LCA.
 
 --pident changes how the BLAST results are parsed, hits below that cutoff will never make it into the LCA.
+
+--missing_out changes the filename of the file missing species are written to, by default 'missing.csv'. Missing species are species present in the BLAST results and on NCBI Taxonomy, but are not in WoRMS. These species are a mix of non-marine species and species with sp./cf. names.
 
 ## Installation
 
@@ -64,3 +68,7 @@ I have thought about adding AFD (Australian Faunal Directory) as another source.
 - I have weird taxonomic sub-levels that I am interested in, why are they dropped?
 
 The script only works with class, order, family, genus, species. That way I can make the LCA calculation fairly lazy: instead of having to build a graph of all taxonomic levels and doing weird graph-based magic, I can just calculate the sets of unique species, unique genera, unique families, unique orders, unique classes, and check set size after filtering. If the set size is > 1, set this taxonomic level's taxonomic label to 'dropped'. Easier than breaking my head trying to come up with recursive tree-walking algorithms for the sake of methodological complexity you can publish in a paper, I'd rather have results.
+
+- I have more questions!
+
+Please contact me at pbayer@minderoo.org
