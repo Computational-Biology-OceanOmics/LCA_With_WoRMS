@@ -1,8 +1,12 @@
 # Calculate LCA using WoRMS
 
-Most LCA pipelines out there rely on NCBI's Taxonomy database. However, that database is large and fish are notoriously prone to change. Other databases like the World Register of Marine Species (WoRMS) are updated more often, so here is a tool that takes a table of BLAST results, takes the hits for each ASV, and queries the WoRMS API to ask for the 'updated'/'current' lineage of the hit, then uses the WoRMS lineages to calculate LCAs. Sometimes this leads to better, lower-level LCAs compared with LCAs based on the NCBI Taxonomy.
+Most LCA pipelines out there rely on NCBI's Taxonomy database. However, that database is large and fish are notoriously prone to change. Other databases like the World Register of Marine Species (WoRMS) are updated more often, so here is a tool that takes a table of BLAST results, takes the hits for each ASV, and queries the WoRMS API to ask for the 'updated'/'current' lineage of the hit, then uses the WoRMS lineages to calculate LCAs. Sometimes several similar species have wrong, outdated families on NCBI Taxonomy that are correct on WoRMS, and when you use NCBI Taxonomy, you will get an order-level LCA, while WoRMS-based LCA will have a family or genus-level LCA.
 
 Be careful, though: WoRMS includes only *marine* species and will return nothing for non-marine species, so if you have a mix of marine and non-marine species in your results better use a different database. We work with marine eDNA so filtering out non-marine hits is very useful for us, lots of similar looking freshwater fish out there!
+
+Here's what LCA levels look like between NCBI Taxonomy ('normal') and WoRMS for one of our internal libraries, thanks to Dr Georgia Nester for the comparison:
+
+![Rplot](https://github.com/user-attachments/assets/781cb094-a06b-42a5-8c61-b36efb150455)
 
 ## LCA calculation
 
