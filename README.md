@@ -46,6 +46,17 @@ options:
 
 --missing_out changes the filename of the file missing species are written to, by default 'missing.csv'. Missing species are species present in the BLAST results and on NCBI Taxonomy, but are not in WoRMS. These species are a mix of non-marine species and species with sp./cf. names.
 
+## Output
+
+Looks like this:
+
+```
+ASV_name        Class   Order   Family  Genus   Species PercentageID    Species_In_LCA
+ASV_17067       Teleostei       Ophidiiformes   Ophidiidae      dropped dropped 89.60   Ventichthys biospeedoi, Bassozetus zenkevitchi
+```
+
+A tab-delimited table, one row per unique query in the BLAST results, showing which WoRMS taxonomic levels were included, and which were dropped. It also shows the average BLAST identity of the species-hits included in the LCA, and the species that were included in the LCA.
+
 ## Installation
 
 This depends on pytaxonkit (only on bioconda) and pyworms. Follow the [pytaxonkit](https://github.com/bioforensics/pytaxonkit) instructions to download the NCBI taxonomy database.
