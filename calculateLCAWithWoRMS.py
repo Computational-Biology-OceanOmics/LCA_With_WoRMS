@@ -42,7 +42,7 @@ parser.add_argument('-f', '--file', help = 'input file of BLAST results', requir
 parser.add_argument('-o', '--output', help = 'Output file of LCAs. Tab delimited.', required = True)
 parser.add_argument('--cutoff', help = 'OPTIONAL: Percentage cutoff between best BLAST hit and followup to be considered in LCA. Only species within this percentage identity cutoff will be included in LCA calculation.\nDefault: %(default)s in line with eDNAFlow\'s LCA script.', default = CUTOFF, type = float)
 parser.add_argument('--pident', help = 'OPTIONAL: Percentage cutoff for BLAST hits. Hits below this cutoff will be ignored for LCA calculation.\nDefault: Initially consider all BLAST hits, but then filter in line with --cutoff.', default = 0, type = float)
-parser.add_argument('--missing_out', help = 'OPTIONAL: Filename to write missing species (not in WoRMS) to.\nDefault: missing.csv.', default = 'missing.csv', type = ascii)
+parser.add_argument('--missing_out', help = 'OPTIONAL: Filename to write missing species (not in WoRMS) to.\nDefault: %(default)s.', default = 'missing.csv')
 args = parser.parse_args()
 
 cutoff = args.cutoff
