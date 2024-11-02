@@ -108,7 +108,8 @@ Your BLAST database was not made using taxonomy IDs. Make a table of sequence ID
 
 - I may have unacccepted taxonomic names in my results.
 
-WoRMS is nice in that it knows about many, but not all unaccepted names. If an unaccepted name made it into WoRMS the API returns the accepted version of this name along with the taxonomic lineage of the new, accepted name. We then use that name for the LCA. Neat, isn't it
+WoRMS is nice in that it knows about many, but not all unaccepted names. If an unaccepted name made it into WoRMS the API returns the accepted version of this name along with the taxonomic lineage of the new, accepted name. We then use that name for the LCA. Neat, isn't it!  
+On the other hand, if your species is not in WoRMS it will be dropped from the LCA calculation and it will get written to missing.csv.
 
 - I have more questions!
 
