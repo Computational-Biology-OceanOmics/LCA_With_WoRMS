@@ -61,9 +61,6 @@ for line in open(args.file):
     if pident < pident_cutoff:
         continue
 
-    if 'ANFC H 9145-21]' in line:
-        # for now, get rid of that mislabeled Solegnathus
-        continue
     taxid = ll[2]
     taxids.add(taxid)
 
@@ -93,7 +90,7 @@ for species, b in zip(all_species, results):
     genus = this_hit['genus']
     realspecies = this_hit['valid_name']
 
-    print(species, this_hit)
+    #print(species, this_hit)
     # some BLAST hits are not on the species level. so what  WoRMS retusn is not on the species-level, either
     if species:
         look_up[species] = [ ("C", thisclass),
@@ -131,9 +128,6 @@ for line in open(args.file):
     if pident < pident_cutoff:
         continue
 
-    if 'ANFC H 9145-21]' in line:
-        # for now, get rid of that mislabeled Solegnathus
-        continue
     taxid = ll[2]
     species = taxid_to_name_dict[int(taxid)]
     try:
