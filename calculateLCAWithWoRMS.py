@@ -62,6 +62,7 @@ for line in open(args.file):
         continue
 
     taxid = ll[2]
+    assert taxid != 'NA', f'ERROR: You have NAs for taxids in at least one case. Here is the row: {line.rstrip()}'
     taxids.add(taxid)
 
 taxid_to_name = pytaxonkit.name(list(taxids))
